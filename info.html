@@ -31,7 +31,7 @@
     <script>
 	$().ready(function () {
 	
-	$.getJSON('http://localhost/petition.php?url=array', function(data) {
+	$.getJSON('./petition.php?url=array', function(data) {
 		console.log(data);
 		var json = jQuery.parseJSON(data);
 		console.log(json);
@@ -46,7 +46,7 @@
 	function pad(n){return n<10 ? '0'+n : n}
 	
 	function generateGrafic (name){
-	$.getJSON('http://localhost/petition.php?url='+name, function(data) {
+	$.getJSON('./petition.php?url='+name, function(data) {
 		var dataArray = [];
 		var maxKey = 0;
 		var minKey = Number.MAX_VALUE;
