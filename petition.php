@@ -1,6 +1,6 @@
 <?php
 	$url = $_GET['url'];
-    $petition='http://elchudi.xen.prgmr.com:8000/' . $url;
+    $petition='http://elchudi.xen.prgmr.com:80/' . $url;
     if($url!="")
 		echo header('Content-Type: application/json');
 		echo json_encode(utf8_encode(str_replace("'", '"', file_get_contents($petition))));

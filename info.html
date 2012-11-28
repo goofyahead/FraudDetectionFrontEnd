@@ -2,15 +2,11 @@
 <html>
 <head>
 	<style>
+	body{
+		background-image: url("./stripe.png");
+	}
 	.meta_div{
-		background: rgb(191,210,85); /* Old browsers */
-		background: -moz-linear-gradient(top,  rgba(191,210,85,1) 0%, rgba(142,185,42,1) 50%, rgba(114,170,0,1) 51%, rgba(158,203,45,1) 100%); /* FF3.6+ */
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(191,210,85,1)), color-stop(50%,rgba(142,185,42,1)), color-stop(51%,rgba(114,170,0,1)), color-stop(100%,rgba(158,203,45,1))); /* Chrome,Safari4+ */
-		background: -webkit-linear-gradient(top,  rgba(191,210,85,1) 0%,rgba(142,185,42,1) 50%,rgba(114,170,0,1) 51%,rgba(158,203,45,1) 100%); /* Chrome10+,Safari5.1+ */
-		background: -o-linear-gradient(top,  rgba(191,210,85,1) 0%,rgba(142,185,42,1) 50%,rgba(114,170,0,1) 51%,rgba(158,203,45,1) 100%); /* Opera 11.10+ */
-		background: -ms-linear-gradient(top,  rgba(191,210,85,1) 0%,rgba(142,185,42,1) 50%,rgba(114,170,0,1) 51%,rgba(158,203,45,1) 100%); /* IE10+ */
-		background: linear-gradient(to bottom,  rgba(191,210,85,1) 0%,rgba(142,185,42,1) 50%,rgba(114,170,0,1) 51%,rgba(158,203,45,1) 100%); /* W3C */
-		filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#bfd255', endColorstr='#9ecb2d',GradientType=0 ); /* IE6-9 */
+		border-radius: 15px;
 	}
 	</style>
     <script type="text/javascript" src="http://code.jquery.com/jquery.js"></script>
@@ -20,78 +16,117 @@
     <script src="./libs/RGraph.line.js" ></script>
 	<script src="./libs/RGraph.scatter.js" ></script>
     
-    <title>A basic Line chart</title>
+    <title>Examining a FB contest</title>
 </head>
 <body>
 	<center>
-    <h1>Lets detect FRAUD voting!!! :)</h1>
-	<div id="host" class="meta_div" style="margin: 0 auto; width: 1250px">
+	<div class="meta_div" style="background: #F0F0F0; width: 800px; border-width:1px; border-style: solid; border-color: black; box-shadow: 10px 10px 5px #AAAAAA;">
+    <h1>Let's detect FRAUD voting!!! :)</h1>
+	This page only works correctly in chrome and it takes to load like 10 secs...<br>
+	This data collected from monday 29 shows the 
+	</div>
+	<div id="host" class="meta_div" style="margin: 0 auto; width: 800px">
 	</div>
 	<center>
     <script>
 	$().ready(function () {
-	
+	counterProjects = 0;
 	$.getJSON('./petition.php?url=array', function(data) {
-		console.log(data);
 		var json = jQuery.parseJSON(data);
-		console.log(json);
+		console.log(data);
 		$.each(json.array, function(i,value){
-			console.log(value);
+			console.log("generating plot...");
 			generateGrafic(value);
 		});
-		console.log(data.length);
 	});
 	});
 	
 	function pad(n){return n<10 ? '0'+n : n}
 	
 	function generateGrafic (name){
+	counterProjects++;
+	var ni = document.getElementById('host');
+	var canvas = document.createElement('canvas');
+	var title = document.createElement('div');
+	var dataHtml = document.createElement('p');
+	if (counterProjects == 16) {
+		var divWinners = document.createElement('div');
+		divWinners.innerHTML = "<h1>WINNERS</h1>";
+		ni.appendChild(divWinners);
+	}
+	title.setAttribute("style","float: left; margin: 10px; border-width:1px; border-style: solid; border-color: black; box-shadow: 10px 10px 5px #AAAAAA;");
+	title.style.background = "#F0F0F0 ";
+	title.className = "meta_div";
+	title.style.width = "650px";
+	title.style.height = "440px";
+	title.innerHTML = "<h1>"+name+"</h1>";
+	canvas.width = 600;
+	canvas.height = 250;
+	canvas.setAttribute('id',name);
+	var startDate = new Date(0);
+	var endDate = new Date(0);
+	title.appendChild(canvas);
+	title.appendChild(dataHtml);
+	ni.appendChild(title);
+		
 	$.getJSON('./petition.php?url='+name, function(data) {
 		var dataArray = [];
 		var maxKey = 0;
 		var minKey = Number.MAX_VALUE;
 		var maxValue = 0;
 		var minValue = Number.MAX_VALUE;
+		var maxFirstDiff = 0;
 		var json = jQuery.parseJSON(data);
-
+		var previousKey = 0;
+		var previousValue = 0;
+		var firstDiff = [];
+		var count = 0;
+		
 		$.each(json, function(key, value) {
+			if ( count < 17) {
+				count++;
+			} else {
+				count = 0;
+				var partialMaxDiff = ((parseInt(value) - previousValue) / (parseInt(key) - previousKey));
+				firstDiff.push([parseInt(key), partialMaxDiff]);
+				previousValue = parseInt(value);
+				previousKey = parseInt (key);
+			}
+			if (maxFirstDiff < partialMaxDiff) maxFirstDiff = partialMaxDiff;
 			if (maxKey < key) maxKey = parseInt(key);
 			if (maxValue < value) maxValue = parseInt(value);
 			if (minKey > key) minKey = parseInt(key);
 			if (minValue > value) minValue = parseInt(value);
 			dataArray.push([parseInt(key),parseInt(value)]);
 		});
-		console.log("minValue: " + minValue + " maxValue: " + maxValue);
-		console.log("minKey: " + minKey + " maxKey: " + maxKey);
-
-		console.log("tiempo transcurrido de toma de datos: " + ((maxKey - minKey) / 60)	);
+		
+		var previousDiffKey = 0;
+		var previousDiffValue = 0;
+		var maxSecondDiff = 0;
+		var doubleDiff = [];
+		for (i = 0; i < firstDiff.length ; i++){
+			var partialMaxDiff = ((firstDiff[i][1] - previousDiffValue) / (firstDiff[i][0] - previousDiffKey));
+			if (maxSecondDiff < partialMaxDiff) maxSecondDiff = partialMaxDiff;
+			doubleDiff.push([firstDiff[i][0], partialMaxDiff]);
+			previousDiffValue = firstDiff[i][1];
+			previousDiffKey = firstDiff[i][0];
+		}
 
 		var steps = 10;
 		var elementsDate = [];
 		var analisisTime = (maxKey - minKey);
-		console.log("test run for: " + analisisTime + " min.");
 		var intervalSecs = analisisTime / steps;
-		console.log("steps of: " + intervalSecs +" min.");
 		for (i = 1; i<= steps; i++){
 			var date = new Date(0);
 			date.setUTCSeconds(minKey + (intervalSecs * i));
 			elementsDate.push(pad(date.getUTCHours())+':'+ pad(date.getUTCMinutes()));
 		}
 			
-		var ni = document.getElementById('host');
-		var canvas = document.createElement('canvas');
-		var title = document.createElement('div');
-		title.setAttribute("style","float: left");
-		title.style.width = "600px";
-		title.style.height = "300px";
-		title.innerHTML = "<h1>"+name+"</h1>";
-		canvas.width = 550;
-		canvas.height = 250;
-		canvas.setAttribute('id',name);
-		title.appendChild(canvas);
-		ni.appendChild(title);
-
-
+		startDate.setUTCSeconds(minKey);
+		endDate.setUTCSeconds(maxKey);
+		var votesPerHour = parseInt((maxValue - minValue) / ((maxKey - minKey)/3600))
+		dataHtml.innerHTML = "Data logged from " + startDate + "<br>Till " + endDate + "<br>With <b>" + votesPerHour + "</b> votes per hour aprox."; 
+		
 		
 		var scatter = new RGraph.Scatter(name, dataArray);
 		scatter.Set('chart.xmin', minKey);
@@ -99,19 +134,53 @@
 		scatter.Set('chart.labels', elementsDate);
 		scatter.Set('chart.ymax', maxValue);
 		scatter.Set('chart.ymin', minValue);
-		scatter.Set('chart.line', true);
+		scatter.Set('chart.key.rounded', true);
 		scatter.Set('chart.gutter.left', 70);
-		scatter.Set('chart.title', name);
 		scatter.Set('chart.title.yaxis', 'Votes');
 		scatter.Set('chart.title.yaxis.pos', 0.10);
-		scatter.Set('chart.line.linewidth', 3);
-		scatter.Set('chart.line.colors', ['red']);
-		scatter.Set('chart.line.shadow.color', '#999');
-		scatter.Set('chart.line.shadow.blur', 20);
-		scatter.Set('chart.line.shadow.offsetx', 0);
-		scatter.Set('chart.line.shadow.offsety', 0);
-		scatter.Set('chart.tickmarks', null);
 		scatter.Draw();
+		
+		var scatter2 = new RGraph.Scatter(name, firstDiff);
+		scatter2.Set('chart.curvy', true);
+		scatter2.Set('chart.xmin', minKey);
+		scatter2.Set('chart.xmax', maxKey);
+		scatter2.Set('chart.ymax', maxFirstDiff);
+		scatter2.Set('chart.ymin', 0);
+		scatter2.Set('chart.line', true);
+		scatter2.Set('chart.ylabels', false);
+		scatter2.Set('chart.gutter.left', 70);
+		scatter2.Set('chart.title.yaxis.pos', 0.10);
+		scatter2.Set('chart.line.linewidth', 2);
+		scatter2.Set('chart.line.colors', ['red']);
+		scatter2.Set('chart.line.shadow.color', '#999');
+		scatter2.Set('chart.line.shadow.blur', 10);
+		scatter2.Set('chart.line.shadow.offsetx', 0);
+		scatter2.Set('chart.line.shadow.offsety', 0);
+		scatter2.Draw()
+		
+		var scatter3 = new RGraph.Scatter(name, doubleDiff);
+		scatter3.Set('chart.xmin', minKey);
+		scatter3.Set('chart.xmax', maxKey);
+		scatter3.Set('chart.ymax', maxSecondDiff);
+		scatter3.Set('chart.ymin', 0);
+		scatter3.Set('chart.line', true);
+		scatter2.Set('chart.ylabels', false);
+		scatter3.Set('chart.gutter.left', 70);
+		scatter3.Set('chart.title.yaxis.pos', 0.10);
+		scatter3.Set('chart.line.linewidth', 1);
+		scatter3.Set('chart.line.colors', ['#0f0']);
+		scatter3.Set('chart.line.shadow.color', '#999');
+		scatter3.Set('chart.line.shadow.blur', 20);
+		scatter3.Set('chart.line.shadow.offsetx', 0);
+		scatter3.Set('chart.line.shadow.offsety', 0);
+		//scatter3.Draw()
+		if (name == "BounceTangerine.d0"){
+			title.removeChild(canvas);
+			title.removeChild(dataHtml);
+			var errorInfo = document.createElement('p');
+			errorInfo.innerHTML = "<br><br><h1>Due to an error colecting data this project has not been tracked</h1>";
+			title.appendChild(errorInfo);
+		}
 	});
 	}
 	</script>
