@@ -15,18 +15,48 @@
     <script src="./libs/RGraph.line.js" ></script>
 	<script src="./libs/RGraph.scatter.js" ></script>
     
-    <title>Examining a FB contest</title>
+    <title>Voting trends</title>
 </head>
 <body>
+	<script type="text/javascript">
+		var _gaq = _gaq || [];
+		_gaq.push(['_setAccount', 'UA-36659906-1']);
+		_gaq.push(['_trackPageview']);
+
+		(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+		})();
+	</script>
 	<center>
-	<div class="meta_div" style="background: #F0F0F0; width: 800px; border-width:1px; border-style: solid; border-color: black; box-shadow: 10px 10px 5px #AAAAAA;">
-    <h1>Let's detect FRAUD voting!!! :)</h1>
-	This page only works correctly in chrome and it takes to load like 10 secs...<br>
-	This data collected from monday 29 shows the grouth 
+	<div class="meta_div" style="background: #F0F0F0; margin: 10px; width: 800px; border-width:1px; border-style: solid; border-color: black; box-shadow: 10px 10px 5px #AAAAAA;">
+    <h1>Voting trends</h1>
+	We won the Burgos Startup Weekend and started trying to make people vote for us. For a couple of days we were one of the last 10 projects of the list and it occurred to us that maybe it was possible to buy votes :)<br><br>
+
+	A 10 seconds google search got us to a form where you could buy 100 votes per 10 euros. <br><br>
+
+	We thought that since it was so easy to buy votes we should collect and investigate the voting trends collecting data about the Global Startup Battle for coding and for fun! <br><br>
+
+	This is the data collected from monday 26 morning CET showing the growth during the vote contest.<br><br>
+
+	The black line represents the votes and the red line the difference between each point divided by the time gap (the derivative!) scaled to fit the graph.<br><br>
+
+	We started to see some curves that may not be natural so we decided to buy 100 votes to have a “real case” of voting fraud on the data (it can be seen on the big spike found on the MeetMeApp graph).<br><br>
+
+	Congrats to the winners.<br><br>
+	
+	Github, made in 24 hours, so be kind :)<br><br>
+	Get the code! Get the data! Have fun!<br>
+	<a href="https://github.com/goofyahead/FraudDetectionFrontEnd"> frontend </a><br>
+	<a href="https://github.com/elchudi/offerpopFraudDetection"> backend </a><br>
+
+	ps: give us a few more days and we shall put a real analysis of the voting trends!<br>
 	</div>
 	<div id="host" class="meta_div" style="margin: 0 auto; width: 800px">
 	</div>
 	<center>
+		
     <script>
 	$().ready(function () {
 	counterProjects = 0;
@@ -56,10 +86,10 @@
 	title.setAttribute("style","float: left; margin: 10px; border-width:1px; border-style: solid; border-color: black; box-shadow: 10px 10px 5px #AAAAAA;");
 	title.style.background = "#F0F0F0 ";
 	title.className = "meta_div";
-	title.style.width = "650px";
+	title.style.width = "800px";
 	title.style.height = "440px";
 	title.innerHTML = "<h1>"+name+"</h1>";
-	canvas.width = 600;
+	canvas.width = 750;
 	canvas.height = 250;
 	canvas.setAttribute('id',name);
 	var startDate = new Date(0);
@@ -155,24 +185,27 @@
 		scatter2.Set('chart.line.shadow.blur', 10);
 		scatter2.Set('chart.line.shadow.offsetx', 0);
 		scatter2.Set('chart.line.shadow.offsety', 0);
-		scatter2.Draw()
+		scatter2.Draw();
 		
-		var scatter3 = new RGraph.Scatter(name, doubleDiff);
+		var lineFinish = [[1354057190,0],[1354057199,maxValue]];
+		
+		var scatter3 = new RGraph.Scatter(name, lineFinish);
 		scatter3.Set('chart.xmin', minKey);
 		scatter3.Set('chart.xmax', maxKey);
-		scatter3.Set('chart.ymax', maxSecondDiff);
+		scatter3.Set('chart.ymax', maxFirstDiff);
 		scatter3.Set('chart.ymin', 0);
 		scatter3.Set('chart.line', true);
 		scatter2.Set('chart.ylabels', false);
 		scatter3.Set('chart.gutter.left', 70);
 		scatter3.Set('chart.title.yaxis.pos', 0.10);
-		scatter3.Set('chart.line.linewidth', 1);
+		scatter3.Set('chart.line.linewidth', 3);
 		scatter3.Set('chart.line.colors', ['#0f0']);
 		scatter3.Set('chart.line.shadow.color', '#999');
 		scatter3.Set('chart.line.shadow.blur', 20);
 		scatter3.Set('chart.line.shadow.offsetx', 0);
 		scatter3.Set('chart.line.shadow.offsety', 0);
-		//scatter3.Draw()
+		//scatter3.Draw();
+		
 		if (name == "BounceTangerine.d0"){
 			title.removeChild(canvas);
 			title.removeChild(dataHtml);
