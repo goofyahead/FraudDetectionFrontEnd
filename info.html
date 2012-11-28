@@ -99,6 +99,7 @@
 	ni.appendChild(title);
 		
 	$.getJSON('./petition.php?url='+name, function(data) {
+		var FIREFOX = /Firefox/i.test(navigator.userAgent);
 		var dataArray = [];
 		var maxKey = 0;
 		var minKey = Number.MAX_VALUE;
@@ -117,7 +118,7 @@
 			} else {
 				count = 0;
 				var partialMaxDiff = ((parseInt(value) - previousValue) / (parseInt(key) - previousKey));
-				firstDiff.push([parseInt(key), partialMaxDiff]);
+				firstDiff.push([parseInt(key), partialMaxDiff, 'red']);
 				previousValue = parseInt(value);
 				previousKey = parseInt (key);
 			}
@@ -175,7 +176,11 @@
 		scatter2.Set('chart.xmax', maxKey);
 		scatter2.Set('chart.ymax', maxFirstDiff);
 		scatter2.Set('chart.ymin', 0);
+		if (FIREFOX) {
+		scatter2.Set('chart.line', false);
+		} else {
 		scatter2.Set('chart.line', true);
+		}
 		scatter2.Set('chart.ylabels', false);
 		scatter2.Set('chart.gutter.left', 70);
 		scatter2.Set('chart.title.yaxis.pos', 0.10);
